@@ -7,7 +7,6 @@ var WordGenerator = {
 
 	getWord: function(wordType, pre, includePre) {
 		includePre = typeof includePre === "undefined" ? true : includePre;
-		pre = typeof pre === "undefiend" ? "" : pre;
 
 		if(!this.checkWordType(wordType)) {
 			return "-- You derped the word type! --";
@@ -68,19 +67,25 @@ var WordGenerator = {
 
 	modifyPre: function(word, pre) {
 		var vocals = ["a", "e", "i", "o", "u"];
-
 		var modified;
 
-		if(pre === "a" || pre === "an") {
-			if(vocals.indexOf(word.charAt(0)) !== -1) {
-				modified = "an";
+		if (typeof pre !== "undefined") {
+
+			if(pre.toLowerCase() === "a" || pre.toLowerCase() === "an") {
+				console.log(word);
+				if(vocals.indexOf(word.charAt(0)) !== -1) {
+					modified = "an";
+				}
+				else {
+					modified = "a";
+				}
 			}
 			else {
-				modified = "a";
+				modified = pre;
 			}
 		}
 		else {
-			modified = pre;
+			modified = "";
 		}
 
 		return modified;

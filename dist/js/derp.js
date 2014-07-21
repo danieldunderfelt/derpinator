@@ -8,7 +8,6 @@ var WordGenerator = {
 
 	getWord: function(wordType, pre, includePre) {
 		includePre = typeof includePre === "undefined" ? true : includePre;
-		pre = typeof pre === "undefiend" ? "" : pre;
 
 		if(!this.checkWordType(wordType)) {
 			return "-- You derped the word type! --";
@@ -69,19 +68,25 @@ var WordGenerator = {
 
 	modifyPre: function(word, pre) {
 		var vocals = ["a", "e", "i", "o", "u"];
-
 		var modified;
 
-		if(pre === "a" || pre === "an") {
-			if(vocals.indexOf(word.charAt(0)) !== -1) {
-				modified = "an";
+		if (typeof pre !== "undefined") {
+
+			if(pre.toLowerCase() === "a" || pre.toLowerCase() === "an") {
+				console.log(word);
+				if(vocals.indexOf(word.charAt(0)) !== -1) {
+					modified = "an";
+				}
+				else {
+					modified = "a";
+				}
 			}
 			else {
-				modified = "a";
+				modified = pre;
 			}
 		}
 		else {
-			modified = pre;
+			modified = "";
 		}
 
 		return modified;
@@ -89,71 +94,37 @@ var WordGenerator = {
 };
 
 module.exports = WordGenerator;
-},{"./grammar":3,"./pluralize":5,"./words":6,"lodash":8}],2:[function(require,module,exports){
+},{"./grammar":4,"./pluralize":6,"./words":7,"lodash":9}],2:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('lodash');
 var wordGenerator = require('./WordGenerator');
+var util = require('./derp-utils');
 
 var self;
 
 var App = function() {
 	self = this;
 	this.derpIt = _.bind(this.derpIt, this);
-	this.save = _.bind(this.save, this);
-	this.prepareNoun = _.bind(this.prepareNoun, this);
-	this.setDefaultText = _.bind(this.setDefaultText, this);
+	util.save = _.bind(util.save, util);
+	util.clearSaves = _.bind(util.clearSaves, util);
 };
 
 App.prototype = {
 
-	regex: /(?:([a-z]+)\s)?derp:(noun|person|object|verb|adjective)(?:\[([0-9]+)\])?/gmi,
+	regex: /(?:([a-z]+)\s)?derp:([a-z]+)(?:\[([0-9]+)\])?/gmi,
 	consistency: {},
 
 	init: function() {
-		this.setDefaultDerpBase();
-		this.getSaves();
+		util.getDefaultDerpBase();
+		util.getSaves();
 		this.startListeners();
-	},
-
-	setDefaultDerpBase: function() {
-		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
-		if(defaultText !== false) $("#derparea").val(defaultText);
-		else localStorage.setItem("derp-default", "");
 	},
 
 	startListeners: function() {
 		$('#derpIt').on("click", this.derpIt);
-		$('#save').on("click", this.save);
-		$('#defText').on("click", this.setDefaultText);
-	},
-
-	setDefaultText: function() {
-		var text = $("#derparea").val();
-		localStorage.setItem("derp-default", text);
-	},
-
-	save: function() {
-		var text = $("#derpResult").html();
-		console.log(text);
-
-		if(text !== "") {
-			var saves = localStorage.getItem("derps") ? JSON.parse(localStorage.getItem("derps")) : {};
-			var saveId = "save" + Date.now();
-			saves[saveId] = text;
-			localStorage.setItem("derps", JSON.stringify(saves));
-			this.getSaves();
-		}
-	},
-
-	getSaves: function() {
-		var saves = JSON.parse(localStorage.getItem("derps"));
-		if(saves !== null) {
-			$("#saves").html("");
-			for(var save in saves) {
-				var $item = $('<li></li>').text(saves[save]);
-				$item.prependTo("#saves");
-			}
-		}
+		$('#save').on("click", util.save);
+		$('#defText').on("click", util.setDefaultText);
+		$('#clearSaves').on("click", util.clearSaves);
 	},
 
 	derpIt: function(e) {
@@ -194,93 +165,58 @@ App.prototype = {
 
 	showDerp: function(text) {
 		$("#derpResult").html(text);
-	},
-
-	drawWord: function(wordType, preceding, isConsistent) {
-		if(typeof preceding === "undefined") {
-			preceding = "";
-		}
-
-		var derper;
-
-		switch(wordType) {
-			case "noun":
-				derper = this.getNoun;
-				break;
-			case "person":
-				derper = this.getPerson;
-				break;
-			case "object":
-				derper = this.getObject;
-				break;
-			case "verb":
-				derper = this.getVerb;
-				break;
-			case "adjective":
-				derper = this.getAdjective;
-				break;
-		}
-
-		return derper(preceding, isConsistent);
-	},
-
-	getNoun: function(pre, isConsistent) {
-		var list = _.merge(words.noun, words.person);
-		var word = list[Math.floor(Math.random() * list.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getPerson: function(pre, isConsistent) {
-		var word = words.person[Math.floor(Math.random() * words.person.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getObject: function(pre, isConsistent) {
-		var word = words.noun[Math.floor(Math.random() * words.noun.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getVerb: function(pre, isConsistent) {
-		return pre + " " + words.verb[Math.floor(Math.random() * words.verb.length)];
-	},
-	getAdjective: function(pre, isConsistent) {
-		var word = words.adjective[Math.floor(Math.random() * words.adjective.length)]
-
-		var complete = "";
-
-		if(typeof word === "string") {
-			complete = !isConsistent ? pre + " " + word : word;
-		}
-		else if(pre === "as" || pre === "was") {
-			complete = !isConsistent ? pre + " " + word[pre] : word[pre];
-		}
-		else if(pre === "quite" || pre === "very") {
-			complete = !isConsistent ? pre + " " + word["as"] : word["as"];
-		}
-		else {
-			complete = !isConsistent ? pre + " " + word.default : word.default;
-		}
-
-		return complete;
-	},
-
-	prepareNoun: function(pre, word, isConsistent) {
-
-		var complete = "";
-
-		if(pre === "many" || pre === "some") {
-			complete = !isConsistent ? pre + " " + word.plural : word.plural;
-		}
-		else if(pre === "the" || pre === "The") {
-			complete = !isConsistent ? pre + " " + word.word : word.word;
-		}
-		else {
-			complete = !isConsistent ? word.article + " " + word.word : word.word;
-		}
-
-		return complete;
-	},
+	}
 };
 
 module.exports = App;
-},{"./WordGenerator":1,"jquery":7,"lodash":8}],3:[function(require,module,exports){
+},{"./WordGenerator":1,"./derp-utils":3,"jquery":8,"lodash":9}],3:[function(require,module,exports){
+var $ = require('jquery');
+
+var derpUtils = {
+
+	getDefaultDerpBase: function() {
+		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
+
+		if(defaultText !== false) $("#derparea").val(defaultText);
+		else localStorage.setItem("derp-default", "");
+	},
+
+	setDefaultText: function() {
+		var text = $("#derparea").val();
+		localStorage.setItem("derp-default", text);
+	},
+
+	save: function() {
+		var text = $("#derpResult").html();
+
+		if(text !== "") {
+			var saves = localStorage.getItem("derps") ? JSON.parse(localStorage.getItem("derps")) : {};
+			var saveId = "save" + Date.now();
+			saves[saveId] = text;
+			localStorage.setItem("derps", JSON.stringify(saves));
+			this.getSaves();
+		}
+	},
+
+	getSaves: function() {
+		var saves = JSON.parse(localStorage.getItem("derps"));
+		if(saves !== null) {
+			$("#saves").html("");
+			for(var save in saves) {
+				var $item = $('<li></li>').text(saves[save]);
+				$item.prependTo("#saves");
+			}
+		}
+	},
+
+	clearSaves: function() {
+		localStorage.setItem("derps", JSON.stringify({}));
+		this.getSaves();
+	},
+};
+
+module.exports = derpUtils;
+},{"jquery":8}],4:[function(require,module,exports){
 var grammar = {
 
 	plural: [
@@ -299,14 +235,14 @@ var grammar = {
 };
 
 module.exports = grammar;
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var app = require('./app');
 
 window.onload = function() {
 	var derpinator = new app();
 	derpinator.init();
 };
-},{"./app":2}],5:[function(require,module,exports){
+},{"./app":2}],6:[function(require,module,exports){
 /* This file is part of OWL Pluralization.
 
 OWL Pluralization is free software: you can redistribute it and/or
@@ -499,7 +435,7 @@ owl.pluralize = (function() {
 })();
 
 module.exports = owl;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var words = {
 
 	noun: [],
@@ -611,6 +547,8 @@ var words = {
 		"scooped",
 		"reached",
 		"fetched",
+		"walked",
+		"flew",
 	],
 	adjective: [
 		"cute",
@@ -666,33 +604,42 @@ var words = {
 		"grumpy",
 		"small",
 		"uncoherent",
-		"panicing"
-	],
-	adverb: [
-		"seldom",
-		"typical",
-		"clammy",
-		"lucky",
-		"invincible",
-		"panicky",
-		"hateful",
-		"soggy",
-		"unhealthy",
-		"vague",
-		"repulsive",
-		"massive",
+		"panicing",
 		"sticky",
 		"fiddly",
-		"ancient",
-		"overconfident",
 		"icy",
-		"victorious",
-		"sophisticated"
+		"derpish"
+	],
+	adverb: [
+		"cowardly",
+		"seldomly",
+		"typically",
+		"clammily",
+		"luckily",
+		"invincibly",
+		"panicingly",
+		"hatefully",
+		"soggily",
+		"unhealthily",
+		"vaguely",
+		"repulsively",
+		"massively",
+		"anciently",
+		"overconfidently",
+		"victoriously",
+		"sophisticatedly",
+		"explosively",
+		"derpishly",
+		"mouth-wateringily",
+		"fishily",
+		"hugely",
+		"humongously",
+		"darkly",
 	]
 };
 
 module.exports = words;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -9884,7 +9831,7 @@ return jQuery;
 
 }));
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -16673,4 +16620,4 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[1,2,3,4,5,6]);
+},{}]},{},[1,2,3,4,5,6,7]);

@@ -1,67 +1,33 @@
 var $ = require('jquery');
 var _ = require('lodash');
 var wordGenerator = require('./WordGenerator');
+var util = require('./derp-utils');
 
 var self;
 
 var App = function() {
 	self = this;
 	this.derpIt = _.bind(this.derpIt, this);
-	this.save = _.bind(this.save, this);
-	this.prepareNoun = _.bind(this.prepareNoun, this);
-	this.setDefaultText = _.bind(this.setDefaultText, this);
+	util.save = _.bind(util.save, util);
+	util.clearSaves = _.bind(util.clearSaves, util);
 };
 
 App.prototype = {
 
-	regex: /(?:([a-z]+)\s)?derp:(noun|person|object|verb|adjective)(?:\[([0-9]+)\])?/gmi,
+	regex: /(?:([a-z]+)\s)?derp:([a-z]+)(?:\[([0-9]+)\])?/gmi,
 	consistency: {},
 
 	init: function() {
-		this.setDefaultDerpBase();
-		this.getSaves();
+		util.getDefaultDerpBase();
+		util.getSaves();
 		this.startListeners();
-	},
-
-	setDefaultDerpBase: function() {
-		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
-		if(defaultText !== false) $("#derparea").val(defaultText);
-		else localStorage.setItem("derp-default", "");
 	},
 
 	startListeners: function() {
 		$('#derpIt').on("click", this.derpIt);
-		$('#save').on("click", this.save);
-		$('#defText').on("click", this.setDefaultText);
-	},
-
-	setDefaultText: function() {
-		var text = $("#derparea").val();
-		localStorage.setItem("derp-default", text);
-	},
-
-	save: function() {
-		var text = $("#derpResult").html();
-		console.log(text);
-
-		if(text !== "") {
-			var saves = localStorage.getItem("derps") ? JSON.parse(localStorage.getItem("derps")) : {};
-			var saveId = "save" + Date.now();
-			saves[saveId] = text;
-			localStorage.setItem("derps", JSON.stringify(saves));
-			this.getSaves();
-		}
-	},
-
-	getSaves: function() {
-		var saves = JSON.parse(localStorage.getItem("derps"));
-		if(saves !== null) {
-			$("#saves").html("");
-			for(var save in saves) {
-				var $item = $('<li></li>').text(saves[save]);
-				$item.prependTo("#saves");
-			}
-		}
+		$('#save').on("click", util.save);
+		$('#defText').on("click", util.setDefaultText);
+		$('#clearSaves').on("click", util.clearSaves);
 	},
 
 	derpIt: function(e) {
@@ -102,89 +68,7 @@ App.prototype = {
 
 	showDerp: function(text) {
 		$("#derpResult").html(text);
-	},
-
-	drawWord: function(wordType, preceding, isConsistent) {
-		if(typeof preceding === "undefined") {
-			preceding = "";
-		}
-
-		var derper;
-
-		switch(wordType) {
-			case "noun":
-				derper = this.getNoun;
-				break;
-			case "person":
-				derper = this.getPerson;
-				break;
-			case "object":
-				derper = this.getObject;
-				break;
-			case "verb":
-				derper = this.getVerb;
-				break;
-			case "adjective":
-				derper = this.getAdjective;
-				break;
-		}
-
-		return derper(preceding, isConsistent);
-	},
-
-	getNoun: function(pre, isConsistent) {
-		var list = _.merge(words.noun, words.person);
-		var word = list[Math.floor(Math.random() * list.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getPerson: function(pre, isConsistent) {
-		var word = words.person[Math.floor(Math.random() * words.person.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getObject: function(pre, isConsistent) {
-		var word = words.noun[Math.floor(Math.random() * words.noun.length)];
-		return self.prepareNoun(pre, word, isConsistent);
-	},
-	getVerb: function(pre, isConsistent) {
-		return pre + " " + words.verb[Math.floor(Math.random() * words.verb.length)];
-	},
-	getAdjective: function(pre, isConsistent) {
-		var word = words.adjective[Math.floor(Math.random() * words.adjective.length)]
-
-		var complete = "";
-
-		if(typeof word === "string") {
-			complete = !isConsistent ? pre + " " + word : word;
-		}
-		else if(pre === "as" || pre === "was") {
-			complete = !isConsistent ? pre + " " + word[pre] : word[pre];
-		}
-		else if(pre === "quite" || pre === "very") {
-			complete = !isConsistent ? pre + " " + word["as"] : word["as"];
-		}
-		else {
-			complete = !isConsistent ? pre + " " + word.default : word.default;
-		}
-
-		return complete;
-	},
-
-	prepareNoun: function(pre, word, isConsistent) {
-
-		var complete = "";
-
-		if(pre === "many" || pre === "some") {
-			complete = !isConsistent ? pre + " " + word.plural : word.plural;
-		}
-		else if(pre === "the" || pre === "The") {
-			complete = !isConsistent ? pre + " " + word.word : word.word;
-		}
-		else {
-			complete = !isConsistent ? word.article + " " + word.word : word.word;
-		}
-
-		return complete;
-	},
+	}
 };
 
 module.exports = App;
