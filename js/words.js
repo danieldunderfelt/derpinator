@@ -1,287 +1,71 @@
 var words = {
-	preceding: [
-		"as",
-		"a",
-		"the",
-		"an",
-		"was",
-		"many",
-		"some"
-	],
 
-	noun: [
-		{
-			word: "robot",
-			article: "a",
-			plural: "robots"
-		},
-		{
-			word: "boot",
-			article: "a",
-			plural: "boots"
-		},
-		{
-			word: "fish",
-			article: "a",
-			plural: "fishes"
-		},
-		{
-			word: "wax",
-			article: "a",
-			plural: "pieces of wax"
-		},
-		{
-			word: "slime",
-			article: "a",
-			plural: "gobs of slime"
-		},
-		{
-			word: "trashcan",
-			article: "a",
-			plural: "trashcans"
-		},
-		{
-			word: "beast",
-			article: "a",
-			plural: "beasts"
-		},
-		{
-			word: "bed",
-			article: "a",
-			plural: "beds"
-		},
-		{
-			word: "poodle",
-			article: "a",
-			plural: "poodles"
-		},
-		{
-			word: "poo",
-			article: "a",
-			plural: "poops"
-		},
-		{
-			word: "fart",
-			article: "a",
-			plural: "farts"
-		},
-		{
-			word: "troll",
-			article: "a",
-			plural: "trolls"
-		},
-		{
-			word: "derp",
-			article: "a",
-			plural: "derps"
-		},
-		{
-			word: "UFO",
-			article: "an",
-			plural: "UFOs"
-		},
-		{
-			word: "wall",
-			article: "a",
-			plural: "walls"
-		},
-		{
-			word: "pit of hamburgers",
-			article: "a",
-			plural: "hamburger pits"
-		},
-		{
-			word: "asylum",
-			article: "a",
-			plural: "asylums"
-		},
-		{
-			word: "fishtank",
-			article: "a",
-			plural: "fishtanks"
-		},
-		{
-			word: "kitchen",
-			article: "a",
-			plural: "kitchens"
-		},
-		{
-			word: "bagel",
-			article: "a",
-			plural: "bagels"
-		},
-		{
-			word: "woman",
-			article: "a",
-			plural: "women"
-		},
-		{
-			word: "man",
-			article: "a",
-			plural: "men"
-		},
-		{
-			word: "cat",
-			article: "a",
-			plural: "cats"
-		},
-		{
-			word: "train",
-			article: "a",
-			plural: "trains"
-		},
-		{
-			word: "bowl of acid",
-			article: "a",
-			plural: "bowls of acid"
-		},
-		{
-			word: "public place",
-			article: "a",
-			plural: "public places"
-		},
-		{
-			word: "nut",
-			article: "a",
-			plural: "nuts"
-		},
-		{
-			word: "silly animal",
-			article: "a",
-			plural: "silly animals"
-		},
-		{
-			word: "spaceship",
-			article: "a",
-			plural: "spaceships"
-		},
-		{
-			word: "alien",
-			article: "an",
-			plural: "aliens"
-		},
-		{
-			word: "gift",
-			article: "a",
-			plural: "gifts"
-		},
-		{
-			word: "phone",
-			article: "a",
-			plural: "phones"
-		}
+	noun: [],
+
+	object: [
+		"robot",
+		"boot",
+		"fish",
+		"wax",
+		"slime",
+		"trashcan",
+		"beast",
+		"bed",
+		"poodle",
+		"poo",
+		"fart",
+		"troll",
+		"derp",
+		"UFO",
+		"wall",
+		"pit of hamburgers",
+		"asylum",
+		"fishtank",
+		"kitchen",
+		"bagel",
+		"train",
+		"bowl of acid",
+		"public place",
+		"nut",
+		"silly animal",
+		"spaceship",
+		"gift",
+		"phone",
+		"rag",
+		"blanket",
+		"paperwork",
+		"balloon"
 	],
 	person: [
-		{
-			word: "fisherman",
-			article: "a",
-			plural: "fishermen"
-		},
-		{
-			word: "trucker",
-			article: "a",
-			plural: "truckers"
-		},
-		{
-			word: "criminal",
-			article: "a",
-			plural: "criminals"
-		},
-		{
-			word: "goon",
-			article: "a",
-			plural: "goons"
-		},
-		{
-			word: "policeman",
-			article: "a",
-			plural: "policemen"
-		},
-		{
-			word: "prostitute",
-			article: "a",
-			plural: "prostitutes"
-		},
-		{
-			word: "clown",
-			article: "a",
-			plural: "clowns"
-		},
-		{
-			word: "junkie",
-			article: "a",
-			plural: "junkies"
-		},
-		{
-			word: "pirate",
-			article: "a",
-			plural: "pirates"
-		},
-		{
-			word: "uptight snob",
-			article: "an",
-			plural: "uptight snobs"
-		},
-		{
-			word: "hippie",
-			article: "a",
-			plural: "hippies"
-		},
-		{
-			word: "hipster",
-			article: "a",
-			plural: "hipsters"
-		},
-		{
-			word: "president",
-			article: "a",
-			plural: "presidents"
-		},
-		{
-			word: "joker",
-			article: "a",
-			plural: "jokers"
-		},
-		{
-			word: "hacker",
-			article: "a",
-			plural: "hackers"
-		},
-		{
-			word: "lunatic",
-			article: "a",
-			plural: "lunatics"
-		},
-		{
-			word: "evil supervillain",
-			article: "an",
-			plural: "evil supervillains"
-		},
-		{
-			word: "cook",
-			article: "a",
-			plural: "cooks"
-		},
-		{
-			word: "hermit",
-			article: "a",
-			plural: "hermits" // Unnecessary plural, imo
-		},
-		{
-			word: "dictator",
-			article: "a",
-			plural: "dictators"
-		},
-		{
-			word: "dog",
-			article: "a",
-			plural: "dogs"
-		},
-		{
-			word: "baboon",
-			article: "a",
-			plural: "baboons"
-		}
+		"snake",
+		"baboon",
+		"cat",
+		"woman",
+		"man",
+		"alien",
+		"fisherman",
+		"trucker",
+		"criminal",
+		"goon",
+		"policeman",
+		"prostitute",
+		"clown",
+		"junkie",
+		"pirate",
+		"uptight snob",
+		"hippie",
+		"hipster",
+		"president",
+		"joker",
+		"hacker",
+		"lunatic",
+		"evil supervillain",
+		"cook",
+		"hermit",
+		"dictator",
+		"dog",
+		"baboon",
+		"derper"
 	],
 	verb: [
 		"found",
@@ -291,7 +75,7 @@ var words = {
 		"ate",
 		"snorted",
 		"fell",
-		"hissed at",
+		"hissed",
 		"drank",
 		"tricked",
 		"conned",
@@ -301,14 +85,14 @@ var words = {
 		"sniffed",
 		"gobbled",
 		"ran over",
-		"hit on",
+		"hit",
 		"googled",
 		"cooked",
 		"birthed",
 		"fathered",
 		"gave away",
 		"munched",
-		"slept with",
+		"slept",
 		"knitted",
 		"blew up",
 		"watered",
@@ -319,56 +103,89 @@ var words = {
 		"pinched",
 		"stole",
 		"hi-fived",
-		"masqueraded as",
+		"masqueraded",
 		"sunk",
-		"gave the evil eye to",
+		"eyed",
 		"scooped",
 		"reached",
 		"fetched",
-
 	],
 	adjective: [
-		"fast",
-		{
-			default: "slow",
-			as: "slowly",
-			was: "slow"
-		},
-		"backwards",
+		"cute",
+		"big",
 		"hard",
-		{
-			default: "soft",
-			was: "soft",
-			as: "softly"
-		},
+		"great",
+		"warm",
+		"ice cold",
+		"loud",
+		"soft",
+		"hot",
+		"powerless",
+		"powerful",
+		"flat",
+		"odd-shaped",
+		"normal",
+		"criminal",
+		"cowardly",
+		"huge",
+		"wise",
+		"stupid",
+		"intelligent",
+		"crafty",
+		"short",
+		"long",
+		"massive",
+		"minuscule",
+		"weirdly abnormal",
+		"hipster-y",
+		"slick",
+		"wet",
+		"dry",
+		"featherlight",
+		"light",
+		"heavy",
+		"sick",
+		"misunderstood",
+		"misused",
+		"glittery",
+		"glimmering",
+		"finite",
+		"infinite",
+		"evil",
+		"mischievous",
+		"flagrant",
+		"impossible",
+		"fantastic",
+		"hulking",
+		"moaning",
+		"screaming",
+		"typical",
+		"unconscious",
+		"grumpy",
+		"small",
+		"uncoherent",
+		"panicing"
+	],
+	adverb: [
 		"seldom",
-		{
-			default: "crazy",
-			was: "crazy",
-			as: "crazily"
-		},
-		{
-			default: "funny",
-			was: "funny",
-			as: "funnily"
-		},
-		{
-			default: "interesting",
-			was: "interesting",
-			as: "interestingly"
-		},
-		"bad",
-		{
-			default: "splendid",
-			was: "splendid",
-			as: "splendidly"
-		},
-		{
-			default: "derpish",
-			was: "derpish",
-			as: "derpishly"
-		},
-		"globally"
+		"typical",
+		"clammy",
+		"lucky",
+		"invincible",
+		"panicky",
+		"hateful",
+		"soggy",
+		"unhealthy",
+		"vague",
+		"repulsive",
+		"massive",
+		"sticky",
+		"fiddly",
+		"ancient",
+		"overconfident",
+		"icy",
+		"victorious",
+		"sophisticated"
 	]
 };
 

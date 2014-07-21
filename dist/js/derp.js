@@ -1,7 +1,98 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var words = require('./words');
+var grammar = require('./grammar');
+var plural = require('./pluralize');
+var _ = require('lodash');
+
+var WordGenerator = {
+
+	getWord: function(wordType, pre, includePre) {
+		includePre = typeof includePre === "undefined" ? true : includePre;
+		pre = typeof pre === "undefiend" ? "" : pre;
+
+		if(!this.checkWordType(wordType)) {
+			return "-- You derped the word type! --";
+		}
+
+		var word = this.getWordByType(wordType);
+		var modifiedWord = this.modifyWord(word, wordType, pre);
+		var modifiedPre = this.modifyPre(word, pre);
+		var result = includePre ? modifiedPre + " " + modifiedWord : modifiedWord;
+
+		return result;
+	},
+
+	checkWordType: function(wordType) {
+		var types = Object.keys(words);
+
+		if(types.indexOf(wordType) === -1) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	},
+
+	getWordByType: function(type) {
+		var list = words[type];
+
+		if(type === "noun") {
+			list = _.union(words.object, words.person);
+		}
+
+		return list[Math.floor(Math.random() * list.length)];
+	},
+
+	modifyWord: function(word, type, pre) {
+		type = type === "object" || type === "person" ? "noun" : type;
+
+		var modified = word;
+
+		switch (type) {
+			case "noun":
+				modified = this.modifyNoun(word, pre);
+				break;
+		}
+
+		return modified;
+	},
+
+	modifyNoun: function(word, pre) {
+		var modified = word;
+
+		if(grammar.plural.indexOf(pre) !== -1) {
+			modified = plural.pluralize(word);
+		}
+
+		return modified;
+	},
+
+	modifyPre: function(word, pre) {
+		var vocals = ["a", "e", "i", "o", "u"];
+
+		var modified;
+
+		if(pre === "a" || pre === "an") {
+			if(vocals.indexOf(word.charAt(0)) !== -1) {
+				modified = "an";
+			}
+			else {
+				modified = "a";
+			}
+		}
+		else {
+			modified = pre;
+		}
+
+		return modified;
+	}
+};
+
+module.exports = WordGenerator;
+},{"./grammar":3,"./pluralize":5,"./words":6,"lodash":8}],2:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('lodash');
-var words = require('./words');
+var wordGenerator = require('./WordGenerator');
 
 var self;
 
@@ -19,10 +110,15 @@ App.prototype = {
 	consistency: {},
 
 	init: function() {
-		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
-		if(defaultText !== false) $("#derparea").val(defaultText);
+		this.setDefaultDerpBase();
 		this.getSaves();
 		this.startListeners();
+	},
+
+	setDefaultDerpBase: function() {
+		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
+		if(defaultText !== false) $("#derparea").val(defaultText);
+		else localStorage.setItem("derp-default", "");
 	},
 
 	startListeners: function() {
@@ -64,6 +160,7 @@ App.prototype = {
 		e.preventDefault();
 		this.consistency = {};
 		var text = $("#derparea").val();
+
 		this.analyzeText(text);
 	},
 
@@ -72,7 +169,7 @@ App.prototype = {
 			return self.getWord(wordType, consistent, preceding);
 		});
 
-		$("#derpResult").text(newDerp);
+		this.showDerp(newDerp);
 	},
 
 	getWord: function(wordType, consistent, preceding) {
@@ -80,12 +177,12 @@ App.prototype = {
 			return this.getConsistent(consistent, wordType, preceding);
 		}
 
-		return this.drawWord(wordType, preceding, false);
+		return wordGenerator.getWord(wordType, preceding);
 	},
 
 	getConsistent: function(consistent, wordType, preceding) {
 		if(typeof this.consistency[consistent] === "undefined") {
-			this.consistency[consistent] = this.drawWord(wordType, preceding, true);
+			this.consistency[consistent] = wordGenerator.getWord(wordType, preceding, false);
 		}
 
 		if(typeof preceding === "undefined") {
@@ -93,6 +190,10 @@ App.prototype = {
 		}
 
 		return preceding + " " + this.consistency[consistent];
+	},
+
+	showDerp: function(text) {
+		$("#derpResult").html(text);
 	},
 
 	drawWord: function(wordType, preceding, isConsistent) {
@@ -179,298 +280,294 @@ App.prototype = {
 };
 
 module.exports = App;
-},{"./words":3,"jquery":4,"lodash":5}],2:[function(require,module,exports){
+},{"./WordGenerator":1,"jquery":7,"lodash":8}],3:[function(require,module,exports){
+var grammar = {
+
+	plural: [
+		"most",
+		"some",
+		"many",
+		"few"
+	],
+
+	singular: [
+		"a",
+		"an",
+		"one",
+		"the"
+	]
+};
+
+module.exports = grammar;
+},{}],4:[function(require,module,exports){
 var app = require('./app');
 
 window.onload = function() {
 	var derpinator = new app();
 	derpinator.init();
 };
-},{"./app":1}],3:[function(require,module,exports){
-var words = {
-	preceding: [
-		"as",
-		"a",
-		"the",
-		"an",
-		"was",
-		"many",
-		"some"
-	],
+},{"./app":2}],5:[function(require,module,exports){
+/* This file is part of OWL Pluralization.
 
-	noun: [
-		{
-			word: "robot",
-			article: "a",
-			plural: "robots"
-		},
-		{
-			word: "boot",
-			article: "a",
-			plural: "boots"
-		},
-		{
-			word: "fish",
-			article: "a",
-			plural: "fishes"
-		},
-		{
-			word: "wax",
-			article: "a",
-			plural: "pieces of wax"
-		},
-		{
-			word: "slime",
-			article: "a",
-			plural: "gobs of slime"
-		},
-		{
-			word: "trashcan",
-			article: "a",
-			plural: "trashcans"
-		},
-		{
-			word: "beast",
-			article: "a",
-			plural: "beasts"
-		},
-		{
-			word: "bed",
-			article: "a",
-			plural: "beds"
-		},
-		{
-			word: "poodle",
-			article: "a",
-			plural: "poodles"
-		},
-		{
-			word: "poo",
-			article: "a",
-			plural: "poops"
-		},
-		{
-			word: "fart",
-			article: "a",
-			plural: "farts"
-		},
-		{
-			word: "troll",
-			article: "a",
-			plural: "trolls"
-		},
-		{
-			word: "derp",
-			article: "a",
-			plural: "derps"
-		},
-		{
-			word: "UFO",
-			article: "an",
-			plural: "UFOs"
-		},
-		{
-			word: "wall",
-			article: "a",
-			plural: "walls"
-		},
-		{
-			word: "pit of hamburgers",
-			article: "a",
-			plural: "hamburger pits"
-		},
-		{
-			word: "asylum",
-			article: "a",
-			plural: "asylums"
-		},
-		{
-			word: "fishtank",
-			article: "a",
-			plural: "fishtanks"
-		},
-		{
-			word: "kitchen",
-			article: "a",
-			plural: "kitchens"
-		},
-		{
-			word: "bagel",
-			article: "a",
-			plural: "bagels"
-		},
-		{
-			word: "woman",
-			article: "a",
-			plural: "women"
-		},
-		{
-			word: "man",
-			article: "a",
-			plural: "men"
-		},
-		{
-			word: "cat",
-			article: "a",
-			plural: "cats"
-		},
-		{
-			word: "train",
-			article: "a",
-			plural: "trains"
-		},
-		{
-			word: "bowl of acid",
-			article: "a",
-			plural: "bowls of acid"
-		},
-		{
-			word: "public place",
-			article: "a",
-			plural: "public places"
-		},
-		{
-			word: "nut",
-			article: "a",
-			plural: "nuts"
-		},
-		{
-			word: "silly animal",
-			article: "a",
-			plural: "silly animals"
-		},
-		{
-			word: "spaceship",
-			article: "a",
-			plural: "spaceships"
-		},
-		{
-			word: "alien",
-			article: "an",
-			plural: "aliens"
-		},
-		{
-			word: "gift",
-			article: "a",
-			plural: "gifts"
-		},
-		{
-			word: "phone",
-			article: "a",
-			plural: "phones"
+OWL Pluralization is free software: you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+OWL Pluralization is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with OWL Pluralization.  If not, see
+<http://www.gnu.org/licenses/>.
+*/
+
+// prepare the owl namespace.
+var owl = {};
+
+owl.pluralize = (function() {
+	var userDefined = {};
+
+	function capitalizeSame(word, sampleWord) {
+		if ( sampleWord.match(/^[A-Z]/) ) {
+			return word.charAt(0).toUpperCase() + word.slice(1);
+		} else {
+			return word;
 		}
+	}
+
+	// returns a plain Object having the given keys,
+	// all with value 1, which can be used for fast lookups.
+	function toKeys(keys) {
+		keys = keys.split(',');
+		var keysLength = keys.length;
+		var table = {};
+		for ( var i=0; i < keysLength; i++ ) {
+			table[ keys[i] ] = 1;
+		}
+		return table;
+	}
+
+	// words that are always singular, always plural, or the same in both forms.
+	var uninflected = toKeys("aircraft,advice,blues,corn,molasses,equipment,gold,information,cotton,jewelry,kin,legislation,luck,luggage,moose,music,offspring,rice,silver,trousers,wheat,bison,bream,breeches,britches,carp,chassis,clippers,cod,contretemps,corps,debris,diabetes,djinn,eland,elk,flounder,gallows,graffiti,headquarters,herpes,high,homework,innings,jackanapes,mackerel,measles,mews,mumps,news,pincers,pliers,proceedings,rabies,salmon,scissors,sea,series,shears,species,swine,trout,tuna,whiting,wildebeest,pike,oats,tongs,dregs,snuffers,victuals,tweezers,vespers,pinchers,bellows,cattle");
+
+	var irregular = {
+		// pronouns
+		I: 'we',
+		you: 'you',
+		he: 'they',
+		it: 'they',  // or them
+		me: 'us',
+		you: 'you',
+		him: 'them',
+		them: 'them',
+		myself: 'ourselves',
+		yourself: 'yourselves',
+		himself: 'themselves',
+		herself: 'themselves',
+		itself: 'themselves',
+		themself: 'themselves',
+		oneself: 'oneselves',
+
+		child: 'children',
+		dwarf: 'dwarfs',  // dwarfs are real; dwarves are fantasy.
+		mongoose: 'mongooses',
+		mythos: 'mythoi',
+		ox: 'oxen',
+		soliloquy: 'soliloquies',
+		trilby: 'trilbys',
+		person: 'people',
+		forum: 'forums', // fora is ok but uncommon.
+
+		// latin plural in popular usage.
+		syllabus: 'syllabi',
+		alumnus: 'alumni',
+		genus: 'genera',
+		viscus: 'viscera',
+		stigma: 'stigmata'
+	};
+
+	var suffixRules = [
+		// common suffixes
+		[ /man$/i, 'men' ],
+		[ /([lm])ouse$/i, '$1ice' ],
+		[ /tooth$/i, 'teeth' ],
+		[ /goose$/i, 'geese' ],
+		[ /foot$/i, 'feet' ],
+		[ /zoon$/i, 'zoa' ],
+		[ /([tcsx])is$/i, '$1es' ],
+
+		// fully assimilated suffixes
+		[ /ix$/i, 'ices' ],
+		[ /^(cod|mur|sil|vert)ex$/i, '$1ices' ],
+		[ /^(agend|addend|memorand|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi)um$/i, '$1a' ],
+		[ /^(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|\w+hedr)on$/i, '$1a' ],
+		[ /^(alumn|alg|vertebr)a$/i, '$1ae' ],
+
+		// churches, classes, boxes, etc.
+		[ /([cs]h|ss|x)$/i, '$1es' ],
+
+		// words with -ves plural form
+		[ /([aeo]l|[^d]ea|ar)f$/i, '$1ves' ],
+		[ /([nlw]i)fe$/i, '$1ves' ],
+
+		// -y
+		[ /([aeiou])y$/i, '$1ys' ],
+		[ /(^[A-Z][a-z]*)y$/, '$1ys' ], // case sensitive!
+		[ /y$/i, 'ies' ],
+
+		// -o
+		[ /([aeiou])o$/i, '$1os' ],
+		[ /^(pian|portic|albin|generalissim|manifest|archipelag|ghett|medic|armadill|guan|octav|command|infern|phot|ditt|jumb|pr|dynam|ling|quart|embry|lumbag|rhin|fiasc|magnet|styl|alt|contralt|sopran|bass|crescend|temp|cant|sol|kimon)o$/i, '$1os' ],
+		[ /o$/i, 'oes' ],
+
+		// words ending in s...
+		[ /s$/i, 'ses' ]
+	];
+
+	// pluralizes the given singular noun.  There are three ways to call it:
+	//   pluralize(noun) -> pluralNoun
+	//     Returns the plural of the given noun.
+	//   Example:
+	//     pluralize("person") -> "people"
+	//     pluralize("me") -> "us"
+	//
+	//   pluralize(noun, count) -> plural or singular noun
+	//   Inflect the noun according to the count, returning the singular noun
+	//   if the count is 1.
+	//   Examples:
+	//     pluralize("person", 3) -> "people"
+	//     pluralize("person", 1) -> "person"
+	//     pluralize("person", 0) -> "people"
+	//
+	//   pluralize(noun, count, plural) -> plural or singular noun
+	//   you can provide an irregular plural yourself as the 3rd argument.
+	//   Example:
+	//     pluralize("château", 2 "châteaux") -> "châteaux"
+	function pluralize(word, count, plural) {
+		// handle the empty string reasonably.
+		if ( word === '' ) return '';
+
+		// singular case.
+		if ( count === 1 ) return word;
+
+		// life is very easy if an explicit plural was provided.
+		if ( typeof plural === 'string' ) return plural;
+
+		var lowerWord = word.toLowerCase();
+
+		// user defined rules have the highest priority.
+		if ( lowerWord in userDefined ) {
+			return capitalizeSame(userDefined[lowerWord], word);
+		}
+
+		// single letters are pluralized with 's, "I got five A's on
+		// my report card."
+		if ( word.match(/^[A-Z]$/) ) return word + "'s";
+
+		// some word don't change form when plural.
+		if ( word.match(/fish$|ois$|sheep$|deer$|pox$|itis$/i) ) return word;
+		if ( word.match(/^[A-Z][a-z]*ese$/) ) return word;  // Nationalities.
+		if ( lowerWord in uninflected ) return word;
+
+		// there's a known set of words with irregular plural forms.
+		if ( lowerWord in irregular ) {
+			return capitalizeSame(irregular[lowerWord], word);
+		}
+
+		// try to pluralize the word depending on its suffix.
+		var suffixRulesLength = suffixRules.length;
+		for ( var i=0; i < suffixRulesLength; i++ ) {
+			var rule = suffixRules[i];
+			if ( word.match(rule[0]) ) {
+				return word.replace(rule[0], rule[1]);
+			}
+		}
+
+		// if all else fails, just add s.
+		return word + 's';
+	}
+
+	pluralize.define = function(word, plural) {
+		userDefined[word.toLowerCase()] = plural;
+	}
+
+	return pluralize;
+
+})();
+
+module.exports = owl;
+},{}],6:[function(require,module,exports){
+var words = {
+
+	noun: [],
+
+	object: [
+		"robot",
+		"boot",
+		"fish",
+		"wax",
+		"slime",
+		"trashcan",
+		"beast",
+		"bed",
+		"poodle",
+		"poo",
+		"fart",
+		"troll",
+		"derp",
+		"UFO",
+		"wall",
+		"pit of hamburgers",
+		"asylum",
+		"fishtank",
+		"kitchen",
+		"bagel",
+		"train",
+		"bowl of acid",
+		"public place",
+		"nut",
+		"silly animal",
+		"spaceship",
+		"gift",
+		"phone",
+		"rag",
+		"blanket",
+		"paperwork",
+		"balloon"
 	],
 	person: [
-		{
-			word: "fisherman",
-			article: "a",
-			plural: "fishermen"
-		},
-		{
-			word: "trucker",
-			article: "a",
-			plural: "truckers"
-		},
-		{
-			word: "criminal",
-			article: "a",
-			plural: "criminals"
-		},
-		{
-			word: "goon",
-			article: "a",
-			plural: "goons"
-		},
-		{
-			word: "policeman",
-			article: "a",
-			plural: "policemen"
-		},
-		{
-			word: "prostitute",
-			article: "a",
-			plural: "prostitutes"
-		},
-		{
-			word: "clown",
-			article: "a",
-			plural: "clowns"
-		},
-		{
-			word: "junkie",
-			article: "a",
-			plural: "junkies"
-		},
-		{
-			word: "pirate",
-			article: "a",
-			plural: "pirates"
-		},
-		{
-			word: "uptight snob",
-			article: "an",
-			plural: "uptight snobs"
-		},
-		{
-			word: "hippie",
-			article: "a",
-			plural: "hippies"
-		},
-		{
-			word: "hipster",
-			article: "a",
-			plural: "hipsters"
-		},
-		{
-			word: "president",
-			article: "a",
-			plural: "presidents"
-		},
-		{
-			word: "joker",
-			article: "a",
-			plural: "jokers"
-		},
-		{
-			word: "hacker",
-			article: "a",
-			plural: "hackers"
-		},
-		{
-			word: "lunatic",
-			article: "a",
-			plural: "lunatics"
-		},
-		{
-			word: "evil supervillain",
-			article: "an",
-			plural: "evil supervillains"
-		},
-		{
-			word: "cook",
-			article: "a",
-			plural: "cooks"
-		},
-		{
-			word: "hermit",
-			article: "a",
-			plural: "hermits" // Unnecessary plural, imo
-		},
-		{
-			word: "dictator",
-			article: "a",
-			plural: "dictators"
-		},
-		{
-			word: "dog",
-			article: "a",
-			plural: "dogs"
-		},
-		{
-			word: "baboon",
-			article: "a",
-			plural: "baboons"
-		}
+		"snake",
+		"baboon",
+		"cat",
+		"woman",
+		"man",
+		"alien",
+		"fisherman",
+		"trucker",
+		"criminal",
+		"goon",
+		"policeman",
+		"prostitute",
+		"clown",
+		"junkie",
+		"pirate",
+		"uptight snob",
+		"hippie",
+		"hipster",
+		"president",
+		"joker",
+		"hacker",
+		"lunatic",
+		"evil supervillain",
+		"cook",
+		"hermit",
+		"dictator",
+		"dog",
+		"baboon",
+		"derper"
 	],
 	verb: [
 		"found",
@@ -480,7 +577,7 @@ var words = {
 		"ate",
 		"snorted",
 		"fell",
-		"hissed at",
+		"hissed",
 		"drank",
 		"tricked",
 		"conned",
@@ -490,14 +587,14 @@ var words = {
 		"sniffed",
 		"gobbled",
 		"ran over",
-		"hit on",
+		"hit",
 		"googled",
 		"cooked",
 		"birthed",
 		"fathered",
 		"gave away",
 		"munched",
-		"slept with",
+		"slept",
 		"knitted",
 		"blew up",
 		"watered",
@@ -508,61 +605,94 @@ var words = {
 		"pinched",
 		"stole",
 		"hi-fived",
-		"masqueraded as",
+		"masqueraded",
 		"sunk",
-		"gave the evil eye to",
+		"eyed",
 		"scooped",
 		"reached",
 		"fetched",
-
 	],
 	adjective: [
-		"fast",
-		{
-			default: "slow",
-			as: "slowly",
-			was: "slow"
-		},
-		"backwards",
+		"cute",
+		"big",
 		"hard",
-		{
-			default: "soft",
-			was: "soft",
-			as: "softly"
-		},
+		"great",
+		"warm",
+		"ice cold",
+		"loud",
+		"soft",
+		"hot",
+		"powerless",
+		"powerful",
+		"flat",
+		"odd-shaped",
+		"normal",
+		"criminal",
+		"cowardly",
+		"huge",
+		"wise",
+		"stupid",
+		"intelligent",
+		"crafty",
+		"short",
+		"long",
+		"massive",
+		"minuscule",
+		"weirdly abnormal",
+		"hipster-y",
+		"slick",
+		"wet",
+		"dry",
+		"featherlight",
+		"light",
+		"heavy",
+		"sick",
+		"misunderstood",
+		"misused",
+		"glittery",
+		"glimmering",
+		"finite",
+		"infinite",
+		"evil",
+		"mischievous",
+		"flagrant",
+		"impossible",
+		"fantastic",
+		"hulking",
+		"moaning",
+		"screaming",
+		"typical",
+		"unconscious",
+		"grumpy",
+		"small",
+		"uncoherent",
+		"panicing"
+	],
+	adverb: [
 		"seldom",
-		{
-			default: "crazy",
-			was: "crazy",
-			as: "crazily"
-		},
-		{
-			default: "funny",
-			was: "funny",
-			as: "funnily"
-		},
-		{
-			default: "interesting",
-			was: "interesting",
-			as: "interestingly"
-		},
-		"bad",
-		{
-			default: "splendid",
-			was: "splendid",
-			as: "splendidly"
-		},
-		{
-			default: "derpish",
-			was: "derpish",
-			as: "derpishly"
-		},
-		"globally"
+		"typical",
+		"clammy",
+		"lucky",
+		"invincible",
+		"panicky",
+		"hateful",
+		"soggy",
+		"unhealthy",
+		"vague",
+		"repulsive",
+		"massive",
+		"sticky",
+		"fiddly",
+		"ancient",
+		"overconfident",
+		"icy",
+		"victorious",
+		"sophisticated"
 	]
 };
 
 module.exports = words;
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -9754,7 +9884,7 @@ return jQuery;
 
 }));
 
-},{}],5:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -16543,4 +16673,4 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[1,2,3]);
+},{}]},{},[1,2,3,4,5,6]);

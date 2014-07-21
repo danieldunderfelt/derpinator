@@ -1,6 +1,6 @@
 var $ = require('jquery');
 var _ = require('lodash');
-var words = require('./words');
+var wordGenerator = require('./WordGenerator');
 
 var self;
 
@@ -18,10 +18,15 @@ App.prototype = {
 	consistency: {},
 
 	init: function() {
-		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
-		if(defaultText !== false) $("#derparea").val(defaultText);
+		this.setDefaultDerpBase();
 		this.getSaves();
 		this.startListeners();
+	},
+
+	setDefaultDerpBase: function() {
+		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
+		if(defaultText !== false) $("#derparea").val(defaultText);
+		else localStorage.setItem("derp-default", "");
 	},
 
 	startListeners: function() {
@@ -63,6 +68,7 @@ App.prototype = {
 		e.preventDefault();
 		this.consistency = {};
 		var text = $("#derparea").val();
+
 		this.analyzeText(text);
 	},
 
@@ -71,7 +77,7 @@ App.prototype = {
 			return self.getWord(wordType, consistent, preceding);
 		});
 
-		$("#derpResult").text(newDerp);
+		this.showDerp(newDerp);
 	},
 
 	getWord: function(wordType, consistent, preceding) {
@@ -79,12 +85,12 @@ App.prototype = {
 			return this.getConsistent(consistent, wordType, preceding);
 		}
 
-		return this.drawWord(wordType, preceding, false);
+		return wordGenerator.getWord(wordType, preceding);
 	},
 
 	getConsistent: function(consistent, wordType, preceding) {
 		if(typeof this.consistency[consistent] === "undefined") {
-			this.consistency[consistent] = this.drawWord(wordType, preceding, true);
+			this.consistency[consistent] = wordGenerator.getWord(wordType, preceding, false);
 		}
 
 		if(typeof preceding === "undefined") {
@@ -92,6 +98,10 @@ App.prototype = {
 		}
 
 		return preceding + " " + this.consistency[consistent];
+	},
+
+	showDerp: function(text) {
+		$("#derpResult").html(text);
 	},
 
 	drawWord: function(wordType, preceding, isConsistent) {
