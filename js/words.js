@@ -65,9 +65,12 @@ var words = {
 		"dictator",
 		"dog",
 		"baboon",
-		"derper"
+		"derper",
+		"groove",
+		"cookie",
 	],
 	verb: [
+		"elephant",
 		"found",
 		"ran",
 		"hopped",
@@ -170,7 +173,8 @@ var words = {
 		"sticky",
 		"fiddly",
 		"icy",
-		"derpish"
+		"derpish",
+		"groovy"
 	],
 	adverb: [
 		"cowardly",
@@ -197,6 +201,12 @@ var words = {
 		"hugely",
 		"humongously",
 		"darkly",
+		"greatly",
+		"calmly",
+		"knowlingly",
+		"mysteriously",
+		"timidly",
+		"groovily"
 	]
 };
 
