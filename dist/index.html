@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Derp</title>
+	<style>
+		* {
+			box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+		}
+		#derpResult, #derparea {
+			border: 1px solid rgba(0,0,0,0.1);
+			padding: 10px;
+			width: 400px;
+			margin-top: 10px;
+		}
+		.derp-app, .explanations {
+			width: 45%;
+			float: left;
+		}
+
+		.explanations {
+			margin-left: 3%;
+		}
+	</style>
+	<script src="js/derp.js"></script>
+</head>
+<body>
+	<h1>
+		The Derpinator
+	</h1>
+	<div class="derp-app">
+		<textarea name="derp" id="derparea" rows="20">
+derp:person derp:verb a derp:noun quite derp:adjective.
+		</textarea>
+		<br>
+		<button id="derpIt">Derp it!</button>
+		<button id="defText">Set this to default derp base</button>
+		<div id="derpResult"></div>
+		<button id="save">Ooh, a good one! Save it!</button>
+		<h2>
+			Previously derped derps:
+		</h2>
+		<ul id="saves">
+		None :(
+		</ul>
+	</div>
+	<div class="explanations">
+		<h2>
+			How this thing works
+		</h2>
+		<p>
+			Hi there! I see you have found THE DERPINATOR. Here's how to "use" it:
+		</p>
+		<p>
+			It's simple: write a story in the text area here. For all words that you want derped, professional term btw [citation needed], write derp:[word type] instead.Word type can be: noun, person, object, verb or adjective.
+		</p>
+		<p>
+			Noticed "noun, person and object" are all nouns? Great, you paid attention in school! I made it like that so you can have some say in your derp. A "person" will probably be some kind of sentient being, like a "fisherman" or a "cat". Basically, a person is alive. An object on the other hand, is not alive, like a "boot". There may be surprises, however!
+		</p>
+		<p>
+			Oh, and if you say "noun", it can be both.
+		</p>
+		<p>
+			Verbs and adjectives are pretty self-explanatory, I hope.
+		</p>
+		<h3>
+			Mutations
+		</h3>
+		<p>
+			"Mutations"? Yep, we've got those! These are the words in front of the derp:[something], like "a" or "was". For example, "Alien" is an "an"-word, so it automatically changes "a" to "an" if you go "a derp:object" (yup, "alien" is an object. Deal with it). "The" will be untouched.
+		</p>
+		<p>
+			That's not very interesting, however. If you want the plural form of a noun, put "many" or "some" in front of the derp:noun, and THE DERPINATOR will spit out the plural of whatever word it chooses.
+		</p>
+		<p>
+			Adjectives mutate with "as", "was", "quite" and "very". THE DERPINATOR is however quite stupid, so don't expect the adjective to fit perfectly. But maybe that makes it funnier?
+		</p>
+		<p>
+			<strong>IMPROTANT: Verbs are past-tense.</strong> Yup, all of them. And they don't mutate. So write your thing like a fairy tale. "There once was a derp:person, who derp:verb another derp:person". You get the point.
+		</p>
+		<h3>
+			Consistency
+		</h3>
+		<p>
+			Although maybe counter-intuitive given what kind of thing this is, you can have a consistent derp in your story! The derp will be randomized the first time, but then it remembers what it chose. How to use this? Glad you asked.
+		</p>
+		<p>
+			Just put [a number] after the derp:whatever. Like this: "The derp:person[1] was very derp:adjective[2] derp:noun[3]. The derp:person[1] liked being very derp:adjective[2] derp:noun[3]." Then, all derps with the same [number] will be the same throughout your derp. Useful? Kinda! Fun? Maybe? A good use of my programming time? You betcha!
+		</p>
+		<h3>
+			Saving
+		</h3>
+		<p>
+			So, you made a funny derp? Maybe you want to save it, to remember your great achievement? Just hit the "Ooh, good one! Save it!" button, and the derp will be listed here until the end of time (or until you clear your browser cache). A way more stable way to save your derp would be to copy and paste into a text document, but I think we already established that I like to waste my programming time.
+		</p>
+		<h3>
+			DISCLAIMER!
+		</h3>
+		<p>
+			None of the randomized are guaranteed to be grammatically correct or suit your sentence. I am not responsible for upsetting your exquisite grammatical acumen. Usage of THE DERPINATOR is fully optional for anyone with free will (check with your local government if you don't have free will), and in fact, I do not encourage it at all.
+		</p>
+	</div>
+</body>
+</html>
