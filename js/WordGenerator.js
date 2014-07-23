@@ -6,6 +6,7 @@ var _ = require('lodash');
 var WordGenerator = {
 
 	getWord: function(wordType, pre, includePre) {
+		console
 		includePre = typeof includePre === "undefined" ? true : includePre;
 
 		if(!this.checkWordType(wordType)) {
@@ -72,7 +73,7 @@ var WordGenerator = {
 		if (typeof pre !== "undefined") {
 
 			if(pre.toLowerCase() === "a" || pre.toLowerCase() === "an") {
-				console.log(word);
+
 				if(vocals.indexOf(word.charAt(0)) !== -1) {
 					modified = "an";
 				}

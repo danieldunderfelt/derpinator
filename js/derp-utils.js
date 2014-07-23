@@ -4,14 +4,12 @@ var derpUtils = {
 
 	getDefaultDerpBase: function() {
 		var defaultText = localStorage.getItem("derp-default") === null ? false : localStorage.getItem("derp-default");
-
 		if(defaultText !== false) $("#derparea").val(defaultText);
-		else localStorage.setItem("derp-default", "");
 	},
 
 	setDefaultText: function() {
 		var text = $("#derparea").val();
-		localStorage.setItem("derp-default", text);
+		if(text !== "") localStorage.setItem("derp-default", text);
 	},
 
 	save: function() {

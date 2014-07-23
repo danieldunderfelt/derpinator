@@ -87,7 +87,6 @@ var words = {
 		"jumped",
 		"sniffed",
 		"gobbled",
-		"ran over",
 		"hit",
 		"googled",
 		"cooked",
